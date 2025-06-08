@@ -5,6 +5,7 @@ import { CSSTransition } from 'react-transition-group';
 import { Form } from './form.js';
 import { ScholarshipDisplay } from './scholarshipDisplay.js';
 
+
 import './styles.css';
 import './fade.css';
 
@@ -29,7 +30,7 @@ export default function Scholarships() {
   return (
     <div className="App">
       <div className="main">
-        <h2>/scholarships</h2>
+        <h2 className="scholarshiph">Scholarships</h2>
       </div>
       <div>
         <Form getSearchData={getSearchData} />

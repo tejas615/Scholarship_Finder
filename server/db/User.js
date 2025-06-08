@@ -2,8 +2,14 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
 const UserSchema = new mongoose.Schema({
+  name: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  institute: { type: String, required: true },
+  course: { type: String, required: true },
+  gpa: { type: Number, required: true,min:0.0,max:10.0 },  // or Number if you want numeric
+  location: { type: String, required: true },
+  incomeStatus: { type: String, required: true }
 });
 
 // Hash password before saving

@@ -32,7 +32,10 @@ export default function Home() {
         <button
           className="getstarted"
           type="button"
-          
+          onClick={() => {
+            const choice = window.confirm('Click OK to Login, Cancel to Register');
+            setShowAuth(choice ? 'login' : 'register');
+          }}
         >
           Get Started
         </button>

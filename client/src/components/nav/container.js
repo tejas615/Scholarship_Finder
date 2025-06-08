@@ -5,6 +5,7 @@ import { TransitionGroup, CSSTransition } from "react-transition-group";
 
 import Home from "../home/home.js";
 import Scholarships from "../scholarships/scholarships.js";
+import Profile from '../Profile.js';
 
 function Container({ location }) {
   return (
@@ -18,6 +19,7 @@ function Container({ location }) {
             <Switch location={location}>
               <Route exact path="/" component={Home} />
               <Route path="/scholarships" component={Scholarships} />
+              <Route path="/profile" component={Profile} />
             </Switch>
           </section>
         </CSSTransition>
