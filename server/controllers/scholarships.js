@@ -79,40 +79,63 @@ export var scrape = function () {
       const $ = cheerio.load(response.data);
 
       $('#content .content h3').each(function (i, elem) {
-        const scholarship = {};
-        scholarship.title = $(elem).text().trim();
+        const scholarship = {
+          title: $(elem).text().trim(),
+          award: 'N/A',
+          deadline: 'TBD',
+          eligibility: 'N/A',
+          description: 'No description.',
+          website: 'N/A'
+        };
 
-        const ulElem = $(elem).next('ul');
-        const liElems = ulElem.find('li');
-
-        liElems.each((i, li) => {
-          const text = $(li).text().trim();
-
-          if (text.startsWith("Award Amount:") || text.startsWith("Amount:")) {
-            scholarship.award = text.replace(/^(Award Amount:|Amount:)/i, '').trim();
-          } else if (text.startsWith("Deadline:")) {
-            scholarship.deadline = text.replace(/^Deadline:/i, '').trim();
-          } else if (text.startsWith("Eligibility:")) {
-            scholarship.eligibility = text.replace(/^Eligibility:/i, '').trim();
-          } else if (text.startsWith("Overview:") || text.startsWith("Description:")) {
-            scholarship.description = text.replace(/^(Overview:|Description:)/i, '').trim();
-          }
-        });
-
-        // Extract link from <a> inside <h3>
+        // Extract link if available
         const linkElem = $(elem).find('a');
-        scholarship.website = linkElem.attr('href') || "N/A";
+        if (linkElem && linkElem.attr('href')) {
+          scholarship.website = linkElem.attr('href');
+        }
 
-        // Provide defaults if not found
-        scholarship.award = scholarship.award || "N/A";
-        scholarship.deadline = scholarship.deadline || "TBD";
-        scholarship.eligibility = scholarship.eligibility || "N/A";
-        scholarship.description = scholarship.description || "No description.";
+        const nextElem = $(elem).next();
+
+        // Case 1: List format
+        if (nextElem.is('ul')) {
+          nextElem.find('li').each((i, li) => {
+            const text = $(li).text().trim();
+            extractField(text, scholarship);
+          });
+        }
+
+        // Case 2: Paragraph format
+        else if (nextElem.is('p')) {
+          const text = nextElem.text().trim();
+          extractField(text, scholarship);
+        }
 
         list.push(scholarship);
       });
+
       return list;
+    })
+    .catch(error => {
+      console.error("Scraping error:", error.message);
+      return [];
     });
 };
 
+// ✅ Helper to extract fields from li or p
+function extractField(text, scholarship) {
+  const lines = text.split(/[\n;.]+/); // split on newline, semicolon, or period
 
+  lines.forEach(line => {
+    const trimmed = line.trim();
+
+    if (/^(Award Amount:|Amount:)/i.test(trimmed)) {
+      scholarship.award = trimmed.replace(/^(Award Amount:|Amount:)/i, '').trim();
+    } else if (/^Deadline:/i.test(trimmed)) {
+      scholarship.deadline = trimmed.replace(/^Deadline:/i, '').trim();
+    } else if (/^Eligibility:/i.test(trimmed)) {
+      scholarship.eligibility = trimmed.replace(/^Eligibility:/i, '').trim();
+    } else if (/^(Overview:|Description:)/i.test(trimmed)) {
+      scholarship.description = trimmed.replace(/^(Overview:|Description:)/i, '').trim();
+    }
+  });
+}
